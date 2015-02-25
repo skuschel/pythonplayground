@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+// Stephan Kuschel 2015
+
 static PyObject* multiply(PyObject* self, PyObject* args)
 {
     double x,y;
@@ -38,12 +40,55 @@ static PyObject* sumarray(PyObject* self, PyObject* args)
     return Py_BuildValue("d", ret);
 }
 
+
+static PyObject* hist1d(PyObject* self, PyObject* args)
+{
+    /*
+    function numpyarray hist1d (numpyarray array, double min, double max, int bins)
+    Simple Histogram of array with n bins
+    */
+    PyArrayObject *pyarray, *pyret;
+    double min, max, x, *array, *ret, tmp;
+    int i, n, bins;
+    int outdims[2];
+
+    // Parse Input
+    if (!PyArg_ParseTuple(args, "O!ddi",
+        &PyArray_Type, &pyarray, &min, &max, &bins))  return NULL;
+    if (NULL == pyarray)  return NULL;
+    outdims[0] = bins;
+    //printf("%.3f\n", min);
+    //printf("%.3f\n", max);
+    array = (double *) pyarray->data;
+
+    // initialize return values
+    pyret = (PyArrayObject *) PyArray_FromDims(1, outdims, NPY_DOUBLE);
+    ret = (double *) pyret->data;
+
+    // do work
+    tmp = 1.0 / (max - min) * bins;
+    //printf("%.3f\n", tmp);
+    for (n=0; n < pyarray->dimensions[0]; n++) {
+        x = (array[n] - min) * tmp;
+        //printf("%.3i\n", i);
+        if (x >= 0.0 & x < bins) {
+            ret[(int)x] += 1.0;
+        }
+    }
+
+    return PyArray_Return(pyret);
+}
+
+
 static PyMethodDef examplemodule_methods[] = {
     {"multiply", multiply, METH_VARARGS},
     {"sum", sum, METH_VARARGS},
     {"sumarray", sumarray, METH_VARARGS},
+    {"hist1d", hist1d, METH_VARARGS},
     {NULL, NULL}
 };
+
+
 
 void initexamplemodule()
 {
