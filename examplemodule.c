@@ -29,11 +29,10 @@ static PyObject* sumarray(PyObject* self, PyObject* args)
     //if (not_doublevector(array)) return NULL;
 
     n = array->dimensions[0];
-    carray = (double *) array->data;
 
     ret=0.0;
     for (i=0; i<n; i++) {
-        ret += carray[i];
+        ret += array->data[i];
         //printf("%.4f\n", ret);
     }
     return Py_BuildValue("d", ret);
