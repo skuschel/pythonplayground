@@ -1,6 +1,11 @@
 #!/usr/bin/env python2
 
-from distutils.core import setup, Extension
+#Stephan Kuschel, 2015
+
+from setuptools import setup, Extension
+
+# in order to build and test use
+# ./setup.py build --build-lib .
 
 exmodule = Extension('examplemodule',
                      sources=['examplemodule.c'])
