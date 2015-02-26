@@ -29,11 +29,11 @@ print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
 print
 print 'Histogram 1D'
 data = np.random.random(2e6)
-(hist2, _) = np.histogram(data, bins=50, range=(0.1,0.9))
+(histnp, _) = np.histogram(data, bins=50, range=(0.1,0.9))
 hist = examplemodule.hist1d(data, 0.1, 0.9, 50)
 print hist
 print 'Histogramme sind gleich: '
-print hist - hist2
+print hist - histnp
 n = 10
 t = timeit.Timer(lambda: np.histogram(data, range=(0.001,0.999), bins=500))
 tn = t.timeit(number=n)/n
@@ -41,4 +41,20 @@ print 'numpy: {:0.4e}'.format(tn)
 t = timeit.Timer(lambda: examplemodule.hist1d(data, 0.001, 0.999, 500))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
+print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
 print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
+
+
+print
+print 'Histogram 1D -- Top Hat shape'
+hist = examplemodule.hist1dtophat(data, 0.1, 0.9, 50)
+print hist
+n = 10
+t = timeit.Timer(lambda: examplemodule.hist1dtophat(data, 0.001, 0.999, 500))
+tc = t.timeit(number=n)/n
+print 'c: {:0.4e}'.format(tc)
+print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
+print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
+
+
+
