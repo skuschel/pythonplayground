@@ -108,10 +108,12 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     //printf("%.3f\n", tmp);
     for (n=0; n < pyarray->dimensions[0]; n++) {
         x = (array[n] - min) * tmp;
-        xr = (int) (x + 0.5);
-        if (xr >= 1.0 & x < bins) {
-            ret[xr] += 0.5 + x - xr;
-            ret[xr - 1] += 0.5 - x + xr;
+        xr = floor(x + 0.5);
+        if (xr >= 0.0 & xr < bins) {
+            ret[(int)xr] += 0.5 + x - xr;
+            if (xr > 1.0){
+                ret[(int)(xr) - 1] += 0.5 - x + xr;
+            }
         }
     }
 
