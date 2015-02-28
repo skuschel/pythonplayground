@@ -29,6 +29,7 @@ print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
 print
 print 'Histogram 1D'
 data = np.random.random(2e6)
+#data.sort()  # sind die Daten sortiert, ist numpy deutlich schneller
 (histnp, _) = np.histogram(data, bins=50, range=(0.1,0.9))
 hist = examplemodule.hist1d(data, 0.1, 0.9, 50)
 print hist
