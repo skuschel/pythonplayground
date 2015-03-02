@@ -44,17 +44,21 @@ static PyObject* sumarray(PyObject* self, PyObject* args)
 static PyObject* hist1d(PyObject* self, PyObject* args)
 {
     /*
-    function numpyarray hist1d (numpyarray array, double min, double max, int bins)
+    function numpyarray hist1d (numpyarray array, double min, double max, int bins, numpyarray weights)
     Simple Histogram of array with n bins
+    weights is optional
     */
-    PyArrayObject *pyarray, *pyret;
-    double min, max, x, *array, *ret, tmp;
+    PyArrayObject *pyarray, *pyret, *pyweights;
+    double min, max, x, *array, *ret, tmp, *weights;
     int i, n, bins;
     int outdims[2];
 
+    // default for pyweights
+    pyweights = NULL;
+
     // Parse Input
-    if (!PyArg_ParseTuple(args, "O!ddi",
-        &PyArray_Type, &pyarray, &min, &max, &bins))  return NULL;
+    if (!PyArg_ParseTuple(args, "O!ddi|O!",
+        &PyArray_Type, &pyarray, &min, &max, &bins, &PyArray_Type, &pyweights))  return NULL;
     if (NULL == pyarray)  return NULL;
     outdims[0] = bins;
     //printf("%.3f\n", min);
@@ -68,11 +72,22 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     // do work
     tmp = 1.0 / (max - min) * bins;
     //printf("%.3f\n", tmp);
-    for (n=0; n < pyarray->dimensions[0]; n++) {
-        x = (array[n] - min) * tmp;
-        //printf("%.3f\n", x);
-        if (x >= 0.0 & x < bins) {
-            ret[(int)x] += 1.0;
+    if (NULL == pyweights) {  //weights not given
+        for (n=0; n < pyarray->dimensions[0]; n++) {
+            x = (array[n] - min) * tmp;
+            //printf("%.3f\n", x);
+            if (x >= 0.0 & x < bins) {
+                ret[(int)x] += 1.0;
+            }
+        }
+    } else {  //weights is given
+        weights = (double *) pyweights->data;
+        for (n=0; n < pyarray->dimensions[0]; n++) {
+            x = (array[n] - min) * tmp;
+            //printf("%.3f\n", weights[n]);
+            if (x >= 0.0 & x < bins) {
+                ret[(int)x] += weights[n];
+            }
         }
     }
 
