@@ -100,14 +100,17 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     function numpyarray hist1d (numpyarray array, double min, double max, int bins)
     Simple Histogram of array with n bins
     */
-    PyArrayObject *pyarray, *pyret;
-    double min, max, x, *array, *ret, tmp;
+    PyArrayObject *pyarray, *pyret, *pyweights;
+    double min, max, x, *array, *ret, tmp, *weights;
     int i, n, bins, xr;
     int outdims[2];
 
+    // default if optional arguemnt not supplied
+    pyweights = NULL;
+
     // Parse Input
-    if (!PyArg_ParseTuple(args, "O!ddi",
-        &PyArray_Type, &pyarray, &min, &max, &bins))  return NULL;
+    if (!PyArg_ParseTuple(args, "O!ddi|O!",
+        &PyArray_Type, &pyarray, &min, &max, &bins, &PyArray_Type, &pyweights))  return NULL;
     if (NULL == pyarray)  return NULL;
     outdims[0] = bins;
     //printf("%.3f\n", min);
@@ -121,13 +124,28 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     // do work
     tmp = 1.0 / (max - min) * bins;
     //printf("%.3f\n", tmp);
-    for (n=0; n < pyarray->dimensions[0]; n++) {
-        x = (array[n] - min) * tmp;
-        xr = floor(x + 0.5);
-        if (xr >= 0.0 & xr < bins) {
-            ret[(int)xr] += 0.5 + x - xr;
-            if (xr > 1.0){
-                ret[(int)(xr) - 1] += 0.5 - x + xr;
+    if (NULL == pyweights) {  //weights not given
+        for (n=0; n < pyarray->dimensions[0]; n++) {
+            x = (array[n] - min) * tmp;
+            xr = floor(x + 0.5);
+            if (xr >= 0.0 & xr < bins) {
+                ret[(int)xr] += 0.5 + x - xr;
+                if (xr > 1.0){
+                    ret[(int)(xr) - 1] += 0.5 - x + xr;
+                }
+            }
+        }
+    } else {  //weights is given
+        //printf("weights will be used");
+        weights = (double *) pyweights->data;
+        for (n=0; n < pyarray->dimensions[0]; n++) {
+            x = (array[n] - min) * tmp;
+            xr = floor(x + 0.5);
+            if (xr >= 0.0 & xr < bins) {
+                ret[(int)xr] += (0.5 + x - xr) * weights[n];
+                if (xr > 1.0){
+                    ret[(int)(xr) - 1] += (0.5 - x + xr) * weights[n];
+                }
             }
         }
     }

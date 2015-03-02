@@ -64,7 +64,7 @@ print '--- Histogram 1D -- Top Hat shape'
 hist = examplemodule.hist1dtophat(data, 0.1, 0.9, 50)
 #print hist
 n = 10
-t = timeit.Timer(lambda: examplemodule.hist1dtophat(data, 0.001, 0.999, bins))
+t = timeit.Timer(lambda: examplemodule.hist1dtophat(data, 0.001, 0.999, bins, weights))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
 print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
