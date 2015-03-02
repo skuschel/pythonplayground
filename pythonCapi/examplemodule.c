@@ -1,3 +1,6 @@
+
+#define NPY_NO_DEPRECATED_API NPY_1_9_API_VERSION
+
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #include <stdio.h>
@@ -30,11 +33,12 @@ static PyObject* sumarray(PyObject* self, PyObject* args)
     if (NULL == array)  return NULL;
     //if (not_doublevector(array)) return NULL;
 
-    n = array->dimensions[0];
+    n = PyArray_SIZE(array);
+    carray = PyArray_DATA(array);
 
     ret=0.0;
     for (i=0; i<n; i++) {
-        ret += array->data[i];
+        ret += carray[i];
         //printf("%.4f\n", ret);
     }
     return Py_BuildValue("d", ret);
@@ -50,7 +54,7 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     */
     PyArrayObject *pyarray, *pyret, *pyweights;
     double min, max, x, *array, *ret, tmp, *weights;
-    int i, n, bins;
+    int i, n, bins, size;
     int outdims[2];
 
     // default for pyweights
@@ -63,17 +67,18 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     outdims[0] = bins;
     //printf("%.3f\n", min);
     //printf("%.3f\n", max);
-    array = (double *) pyarray->data;
+    array = PyArray_DATA(pyarray);
+    size = PyArray_SIZE(pyarray);
 
     // initialize return values
     pyret = (PyArrayObject *) PyArray_FromDims(1, outdims, NPY_DOUBLE);
-    ret = (double *) pyret->data;
+    ret = PyArray_DATA(pyret);
 
     // do work
     tmp = 1.0 / (max - min) * bins;
     //printf("%.3f\n", tmp);
     if (NULL == pyweights) {  //weights not given
-        for (n=0; n < pyarray->dimensions[0]; n++) {
+        for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             //printf("%.3f\n", x);
             if (x >= 0.0 & x < bins) {
@@ -81,8 +86,8 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
             }
         }
     } else {  //weights is given
-        weights = (double *) pyweights->data;
-        for (n=0; n < pyarray->dimensions[0]; n++) {
+        weights = PyArray_DATA(pyweights);
+        for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             //printf("%.3f\n", weights[n]);
             if (x >= 0.0 & x < bins) {
@@ -102,7 +107,7 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     */
     PyArrayObject *pyarray, *pyret, *pyweights;
     double min, max, x, *array, *ret, tmp, *weights;
-    int i, n, bins, xr;
+    int i, n, bins, xr, size;
     int outdims[2];
 
     // default if optional arguemnt not supplied
@@ -115,17 +120,18 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     outdims[0] = bins;
     //printf("%.3f\n", min);
     //printf("%.3f\n", max);
-    array = (double *) pyarray->data;
+    array = PyArray_DATA(pyarray);
+    size = PyArray_SIZE(pyarray);
 
     // initialize return values
     pyret = (PyArrayObject *) PyArray_FromDims(1, outdims, NPY_DOUBLE);
-    ret = (double *) pyret->data;
+    ret = PyArray_DATA(pyret);
 
     // do work
     tmp = 1.0 / (max - min) * bins;
     //printf("%.3f\n", tmp);
     if (NULL == pyweights) {  //weights not given
-        for (n=0; n < pyarray->dimensions[0]; n++) {
+        for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             xr = floor(x + 0.5);
             if (xr >= 0.0 & xr < bins) {
@@ -137,8 +143,8 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
         }
     } else {  //weights is given
         //printf("weights will be used");
-        weights = (double *) pyweights->data;
-        for (n=0; n < pyarray->dimensions[0]; n++) {
+        weights = PyArray_DATA(pyweights);
+        for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             xr = floor(x + 0.5);
             if (xr >= 0.0 & xr < bins) {
