@@ -44,6 +44,38 @@ static PyObject* sumarray(PyObject* self, PyObject* args)
     return Py_BuildValue("d", ret);
 }
 
+static PyObject* sumarrayiterator(PyObject* self, PyObject* args)
+{
+    PyArrayObject *pyarray;
+    double ret, **dataptr;
+    int i, n;
+    NpyIter *iter;
+    NpyIter_IterNextFunc *iternext;
+
+    if (!PyArg_ParseTuple(args, "O!",
+        &PyArray_Type, &pyarray))  return NULL;
+    if (NULL == pyarray)  return NULL;
+    //if (not_doublevector(array)) return NULL;
+
+    iter = NpyIter_New(pyarray,
+            NPY_ITER_READONLY,
+            NPY_KEEPORDER, NPY_NO_CASTING, PyArray_DescrFromType(NPY_DOUBLE));
+    if (iter==NULL) {
+        return NULL;
+    }
+    iternext = NpyIter_GetIterNext(iter, NULL);
+    dataptr = (double **) NpyIter_GetDataPtrArray(iter);
+
+    ret=0.0;
+    do {
+        ret += **dataptr;
+        //printf("%.4f\n", ret);
+    } while (iternext(iter));
+
+    Py_DECREF(iter);
+    return Py_BuildValue("d", ret);
+}
+
 
 static PyObject* hist1d(PyObject* self, PyObject* args)
 {
@@ -164,6 +196,7 @@ static PyMethodDef examplemodule_methods[] = {
     {"multiply", multiply, METH_VARARGS},
     {"sum", sum, METH_VARARGS},
     {"sumarray", sumarray, METH_VARARGS},
+    {"sumarrayiterator", sumarrayiterator, METH_VARARGS},
     {"hist1d", hist1d, METH_VARARGS},
     {"hist1dtophat", hist1dtophat, METH_VARARGS},
     {NULL, NULL}

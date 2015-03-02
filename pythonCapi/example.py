@@ -11,19 +11,24 @@ print examplemodule.sum(3,8)
 
 
 import numpy as np
-data = np.random.random(2000)
+data = np.random.random(1e6)
 print data.sum()
 print examplemodule.sumarray(data)
+print examplemodule.sumarrayiterator(data)
 
 import timeit
-n = 10000
+n = 100
 t = timeit.Timer(lambda: data.sum())
 tn = t.timeit(number=n)/n
 print 'numpy: {:0.4e}'.format(tn)
 t = timeit.Timer(lambda: examplemodule.sumarray(data))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
-print 'Faktor {:5.1f} schneller!'.format(tn/tc)
+print 'Faktor {:5.2f} schneller!'.format(tn/tc)
+t = timeit.Timer(lambda: examplemodule.sumarrayiterator(data))
+tc = t.timeit(number=n)/n
+print 'c (iterator): {:0.4e}'.format(tc)
+print 'Faktor {:5.2f} schneller!'.format(tn/tc)
 
 print
 bins = 1000000
