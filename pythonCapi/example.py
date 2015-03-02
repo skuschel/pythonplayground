@@ -23,39 +23,44 @@ print 'numpy: {:0.4e}'.format(tn)
 t = timeit.Timer(lambda: examplemodule.sumarray(data))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
-print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
-
+print 'Faktor {:5.1f} schneller!'.format(tn/tc)
 
 print
-print 'Histogram 1D'
-data = np.random.random(2e6)
-#data.sort()  # sind die Daten sortiert, ist numpy deutlich schneller
+bins = 1000000
+npart = 5e6
+print '=== Histogramme  bins: {:6d}, npart: {:.1e}'.format(bins, npart)
+data = np.random.random(npart)
+
+print '--- Histogram 1D'
+
+#data.sort()
 (histnp, _) = np.histogram(data, bins=50, range=(0.1,0.9))
 hist = examplemodule.hist1d(data, 0.1, 0.9, 50)
-print hist
+#print hist
 print 'Histogramme sind gleich: '
 print hist - histnp
 n = 10
-t = timeit.Timer(lambda: np.histogram(data, range=(0.001,0.999), bins=500))
-tn = t.timeit(number=n)/n
+tn = 1
+t = timeit.Timer(lambda: np.histogram(data, range=(0.001,0.999), bins=bins))
+tn = t.timeit(number=1)/1
 print 'numpy: {:0.4e}'.format(tn)
-t = timeit.Timer(lambda: examplemodule.hist1d(data, 0.001, 0.999, 500))
+t = timeit.Timer(lambda: examplemodule.hist1d(data, 0.001, 0.999, bins))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
 print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
-print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
+print 'Faktor {:5.1f} schneller!'.format(tn/tc)
 
 
 print
-print 'Histogram 1D -- Top Hat shape'
+print '--- Histogram 1D -- Top Hat shape'
 hist = examplemodule.hist1dtophat(data, 0.1, 0.9, 50)
-print hist
+#print hist
 n = 10
-t = timeit.Timer(lambda: examplemodule.hist1dtophat(data, 0.001, 0.999, 500))
+t = timeit.Timer(lambda: examplemodule.hist1dtophat(data, 0.001, 0.999, bins))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
 print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
-print '=== Faktor {:5.1f} schneller! ==='.format(tn/tc)
+print 'Faktor {:5.1f} schneller!'.format(tn/tc)
 
 
 
