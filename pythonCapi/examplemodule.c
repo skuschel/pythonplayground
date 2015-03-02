@@ -24,15 +24,16 @@ static PyObject* sum(PyObject* self, PyObject* args)
 
 static PyObject* sumarray(PyObject* self, PyObject* args)
 {
-    PyArrayObject *array;
+    PyArrayObject *pyarray, *array;
     double ret, *carray;
     int i, n;
 
     if (!PyArg_ParseTuple(args, "O!",
-        &PyArray_Type, &array))  return NULL;
-    if (NULL == array)  return NULL;
+        &PyArray_Type, &pyarray))  return NULL;
+    if (NULL == pyarray)  return NULL;
     //if (not_doublevector(array)) return NULL;
 
+    array = (PyArrayObject *) PyArray_GETCONTIGUOUS(pyarray);
     n = PyArray_SIZE(array);
     carray = PyArray_DATA(array);
 

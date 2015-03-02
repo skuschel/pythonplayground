@@ -13,12 +13,10 @@ print examplemodule.sum(3,8)
 import numpy as np
 data = np.arange(1e6)
 datav = data[::4]
-print datav.sum()
-# summiert offensichtlich nur das erste viertel auf, da die Daten nicht zusammenhaengend im
-# Speicher liegen
-print examplemodule.sumarray(datav)
-print data[:1e6/4].sum()
-print examplemodule.sumarrayiterator(datav)  # der Iterator macht es wieder richtig
+print 'numpy summe [::4]:    {:.3e}'.format(datav.sum())
+print 'C for loop:           {:.3e}'.format(examplemodule.sumarray(datav))
+print 'numpy data [:size/4]: {:.3e}'.format(data[:len(data)/4].sum())
+print 'C iterator:           {:.3e}'.format(examplemodule.sumarrayiterator(datav))
 
 import timeit
 n = 100
