@@ -11,10 +11,14 @@ print examplemodule.sum(3,8)
 
 
 import numpy as np
-data = np.random.random(1e6)
-print data.sum()
-print examplemodule.sumarray(data)
-print examplemodule.sumarrayiterator(data)
+data = np.arange(1e6)
+datav = data[::4]
+print datav.sum()
+# summiert offensichtlich nur das erste viertel auf, da die Daten nicht zusammenhaengend im
+# Speicher liegen
+print examplemodule.sumarray(datav)
+print data[:1e6/4].sum()
+print examplemodule.sumarrayiterator(datav)  # der Iterator macht es wieder richtig
 
 import timeit
 n = 100
