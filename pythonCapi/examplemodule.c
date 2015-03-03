@@ -81,11 +81,13 @@ static PyObject* sumarrayiterator(PyObject* self, PyObject* args)
 static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
 {
     PyArrayObject *pyarray;
-    double ret, **dataptr;
+    double ret;
+    char **dataptr;
     int i, n;
     NpyIter *iter;
     NpyIter_IterNextFunc *iternext;
-    npy_intp *strideptr, *innersizeptr, *size;
+    npy_intp *strideptr, *innersizeptr;
+    npy_intp size;
 
     if (!PyArg_ParseTuple(args, "O!",
         &PyArray_Type, &pyarray))  return NULL;
@@ -100,7 +102,7 @@ static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
     }
 
     iternext = NpyIter_GetIterNext(iter, NULL);
-    dataptr = (double **) NpyIter_GetDataPtrArray(iter);
+    dataptr = (char **) NpyIter_GetDataPtrArray(iter);
     strideptr = NpyIter_GetInnerStrideArray(iter);
     innersizeptr = NpyIter_GetInnerLoopSizePtr(iter);
     npy_intp iop, nop = NpyIter_GetNOp(iter);
@@ -109,17 +111,15 @@ static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
     do {  //external loop
         //double *data = *dataptr;
         //npy_intp stride = *strideptr;
-        size = (npy_intp *) *innersizeptr;
+        size = *innersizeptr;
 
         printf("size: %.3d\n", size);
         printf("nop:  %.3d\n", nop);
         printf("strideptr:  %.3d\n", *strideptr);
 
         while (size--) {  //internal loop
-            for (n = 0; n < 8; n++) {
-                //printf("%.3f\n", (*dataptr)[n]);
-                ret += (*dataptr)[n];
-            }
+	    double *ddata = dataptr[0];
+	    ret += *ddata;
             for (iop = 0; iop < nop; ++iop) {
                 //printf("%.3f\n", *dataptr[iop]);
                 dataptr[iop] += strideptr[iop];
