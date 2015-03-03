@@ -69,11 +69,68 @@ static PyObject* sumarrayiterator(PyObject* self, PyObject* args)
 
     ret=0.0;
     do {
+        //printf("%.3f\n", **dataptr);
         ret += **dataptr;
         //printf("%.4f\n", ret);
     } while (iternext(iter));
 
     Py_DECREF(iter);
+    return Py_BuildValue("d", ret);
+}
+
+static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
+{
+    PyArrayObject *pyarray;
+    double ret, **dataptr;
+    int i, n;
+    NpyIter *iter;
+    NpyIter_IterNextFunc *iternext;
+    npy_intp *strideptr, *innersizeptr, *size;
+
+    if (!PyArg_ParseTuple(args, "O!",
+        &PyArray_Type, &pyarray))  return NULL;
+    if (NULL == pyarray)  return NULL;
+    //if (not_doublevector(array)) return NULL;
+
+    iter = NpyIter_New(pyarray,
+            NPY_ITER_READONLY | NPY_ITER_EXTERNAL_LOOP | NPY_ITER_REFS_OK,
+            NPY_KEEPORDER, NPY_NO_CASTING, PyArray_DescrFromType(NPY_DOUBLE));
+    if (iter==NULL) {
+        return NULL;
+    }
+
+    iternext = NpyIter_GetIterNext(iter, NULL);
+    dataptr = (double **) NpyIter_GetDataPtrArray(iter);
+    strideptr = NpyIter_GetInnerStrideArray(iter);
+    innersizeptr = NpyIter_GetInnerLoopSizePtr(iter);
+    npy_intp iop, nop = NpyIter_GetNOp(iter);
+
+    ret=0.0;
+    do {  //external loop
+        //double *data = *dataptr;
+        //npy_intp stride = *strideptr;
+        size = (npy_intp *) *innersizeptr;
+
+        printf("size: %.3d\n", size);
+        printf("nop:  %.3d\n", nop);
+        printf("strideptr:  %.3d\n", *strideptr);
+
+        while (size--) {  //internal loop
+            for (n = 0; n < 8; n++) {
+                //printf("%.3f\n", (*dataptr)[n]);
+                ret += (*dataptr)[n];
+            }
+            for (iop = 0; iop < nop; ++iop) {
+                //printf("%.3f\n", *dataptr[iop]);
+                dataptr[iop] += strideptr[iop];
+            }
+            //ret += *data;
+            //data += stride;
+        }
+
+    } while (iternext(iter));
+
+    NpyIter_Deallocate(iter);
     return Py_BuildValue("d", ret);
 }
 
@@ -198,6 +255,7 @@ static PyMethodDef examplemodule_methods[] = {
     {"sum", sum, METH_VARARGS},
     {"sumarray", sumarray, METH_VARARGS},
     {"sumarrayiterator", sumarrayiterator, METH_VARARGS},
+    {"sumarrayiteratorextloop", sumarrayitextloop, METH_VARARGS},
     {"hist1d", hist1d, METH_VARARGS},
     {"hist1dtophat", hist1dtophat, METH_VARARGS},
     {NULL, NULL}
