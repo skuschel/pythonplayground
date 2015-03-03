@@ -113,13 +113,13 @@ static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
         //npy_intp stride = *strideptr;
         size = *innersizeptr;
 
-        printf("size: %.3d\n", size);
-        printf("nop:  %.3d\n", nop);
-        printf("strideptr:  %.3d\n", *strideptr);
+        //printf("size: %.3d\n", size);
+        //printf("nop:  %.3d\n", nop);
+        //printf("strideptr:  %.3d\n", *strideptr);
 
         while (size--) {  //internal loop
-	    double *ddata = dataptr[0];
-	    ret += *ddata;
+            double *ddata = (double*) dataptr[0];
+            ret += *ddata;
             for (iop = 0; iop < nop; ++iop) {
                 //printf("%.3f\n", *dataptr[iop]);
                 dataptr[iop] += strideptr[iop];
