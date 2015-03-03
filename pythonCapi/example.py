@@ -11,25 +11,30 @@ print examplemodule.sum(3,8)
 
 
 import numpy as np
-data = np.arange(1e6)
-datav = data[::4]
+data = np.arange(2e6)
+datav = data[::2]
 print 'numpy summe [::4]:    {:.3e}'.format(datav.sum())
 print 'C for loop:           {:.3e}'.format(examplemodule.sumarray(datav))
 print 'numpy data [:size/4]: {:.3e}'.format(data[:len(data)/4].sum())
 print 'C iterator:           {:.3e}'.format(examplemodule.sumarrayiterator(datav))
+print 'C iterator ext loop:  {:.3e}'.format(examplemodule.sumarrayiteratorextloop(datav))
 
 import timeit
 n = 100
-t = timeit.Timer(lambda: data.sum())
+t = timeit.Timer(lambda: datav.sum())
 tn = t.timeit(number=n)/n
 print 'numpy: {:0.4e}'.format(tn)
-t = timeit.Timer(lambda: examplemodule.sumarray(data))
+t = timeit.Timer(lambda: examplemodule.sumarray(datav))
 tc = t.timeit(number=n)/n
 print 'c: {:0.4e}'.format(tc)
 print 'Faktor {:5.2f} schneller!'.format(tn/tc)
-t = timeit.Timer(lambda: examplemodule.sumarrayiterator(data))
+t = timeit.Timer(lambda: examplemodule.sumarrayiterator(datav))
 tc = t.timeit(number=n)/n
 print 'c (iterator): {:0.4e}'.format(tc)
+print 'Faktor {:5.2f} schneller!'.format(tn/tc)
+t = timeit.Timer(lambda: examplemodule.sumarrayiteratorextloop(datav))
+tc = t.timeit(number=n)/n
+print 'c (iterator ext loop): {:0.4e}'.format(tc)
 print 'Faktor {:5.2f} schneller!'.format(tn/tc)
 
 print
