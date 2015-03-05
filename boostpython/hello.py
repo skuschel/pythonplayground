@@ -12,11 +12,18 @@ print hello_ext.sumarray([4,5,6, 7.7])
 
 import numpy as np
 
+def sumarraypython(liste):
+    ret = 0
+    for d in liste:
+        ret += d
+    return ret
+
 data = np.random.rand(1e6)
 datalist = list(data)
 print 'numpy result:          {:.17f}'.format(data.sum())
 print 'boost result:          {:.17f}'.format(hello_ext.sumarray(datalist))
 print 'boost numeric result:  {:.17f}'.format(hello_ext.sumarraynp(data))
+print 'plain python result:   {:.17f}'.format(sumarraypython(datalist))
 
 import timeit
 n = 20
@@ -31,3 +38,7 @@ t = timeit.Timer(lambda: hello_ext.sumarraynp(data))
 tb = t.timeit(number=n)/n
 print 'boost numeric: {:0.4e} s'.format(tb)
 print 'Faktor {:5.3f} schneller! (naja also boost ist deutlich langsamer)'.format(tn/tb)
+t = timeit.Timer(lambda: sumarraypython(datalist))
+tb = t.timeit(number=n)/n
+print 'plain python: {:0.4e} s'.format(tb)
+print 'Faktor {:5.3f} schneller!'.format(tn/tb)
