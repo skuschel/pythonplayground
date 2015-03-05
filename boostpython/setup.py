@@ -12,6 +12,7 @@ from setuptools import setup, Extension
 # rerun this command to recompile as well
 
 # Very helpful on how to use boost:
+# http://robotics.usc.edu/~ampereir/wordpress/?p=202
 
 
 exmodule = Extension('hello_ext',
