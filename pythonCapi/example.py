@@ -11,13 +11,14 @@ print examplemodule.sum(3,8)
 
 
 import numpy as np
-data = np.arange(2e6)
+#data = np.arange(2e6)
+data = np.random.rand(2e6)
 datav = data[::2]
-print 'numpy summe [::4]:    {:.3e}'.format(datav.sum())
-print 'C for loop:           {:.3e}'.format(examplemodule.sumarray(datav))
-print 'numpy data [:size/4]: {:.3e}'.format(data[:len(data)/4].sum())
-print 'C iterator:           {:.3e}'.format(examplemodule.sumarrayiterator(datav))
-print 'C iterator ext loop:  {:.3e}'.format(examplemodule.sumarrayiteratorextloop(datav))
+print 'numpy summe [::4]:    {:.17e}'.format(datav.sum())
+print 'C for loop:           {:.17e}'.format(examplemodule.sumarray(datav))
+#print 'numpy data [:size/4]: {:.3e}'.format(data[:len(data)/4].sum())
+print 'C iterator:           {:.17e}'.format(examplemodule.sumarrayiterator(datav))
+print 'C iterator ext loop:  {:.17e}'.format(examplemodule.sumarrayiteratorextloop(datav))
 
 import timeit
 n = 100
