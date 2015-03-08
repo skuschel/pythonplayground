@@ -143,9 +143,8 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     weights is optional
     */
     PyArrayObject *pyarray, *pyret, *pyweights;
-    double min, max, x, *array, *ret, tmp, *weights;
-    int i, n, bins, size;
-    int outdims[2];
+    double min, max, x, *array, *ret, *weights;
+    int i, n, bins;
 
     // default for pyweights
     pyweights = NULL;
@@ -154,36 +153,64 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple(args, "O!ddi|O!",
         &PyArray_Type, &pyarray, &min, &max, &bins, &PyArray_Type, &pyweights))  return NULL;
     if (NULL == pyarray)  return NULL;
-    outdims[0] = bins;
-    //printf("%.3f\n", min);
-    //printf("%.3f\n", max);
-    array = PyArray_DATA(pyarray);
-    size = PyArray_SIZE(pyarray);
+
+    NpyIter *iter;
+    iter = NpyIter_New(pyarray,
+            NPY_ITER_READONLY | NPY_ITER_EXTERNAL_LOOP | NPY_ITER_REFS_OK,
+            NPY_KEEPORDER, NPY_NO_CASTING, PyArray_DescrFromType(NPY_DOUBLE));
+    if (iter==NULL) {
+        return NULL;
+    }
+
+    NpyIter_IterNextFunc* iternext = NpyIter_GetIterNext(iter, NULL);
+    char** dataptr = (char **) NpyIter_GetDataPtrArray(iter);
+    npy_intp* strideptr = NpyIter_GetInnerStrideArray(iter);
+    npy_intp* innersizeptr = NpyIter_GetInnerLoopSizePtr(iter);
+    npy_intp iop, nop = NpyIter_GetNOp(iter);
+    if (nop != 1){
+        return NULL;
+    }
 
     // initialize return values
+    int outdims[2];
+    outdims[0] = bins;
     pyret = (PyArrayObject *) PyArray_FromDims(1, outdims, NPY_DOUBLE);
     ret = PyArray_DATA(pyret);
+    double tmp = 1.0 / (max - min) * bins;
 
-    // do work
-    tmp = 1.0 / (max - min) * bins;
-    //printf("%.3f\n", tmp);
-    if (NULL == pyweights) {  //weights not given
-        for (n=0; n < size; n++) {
-            x = (array[n] - min) * tmp;
-            //printf("%.3f\n", x);
-            if (x >= 0.0 & x < bins) {
-                ret[(int)x] += 1.0;
+    if (NULL == pyweights) {  //no weights are given
+        do {  //external loop
+            npy_intp size = *innersizeptr;
+            while (size--) {  //internal loop
+                double *ddata = (double*) dataptr[0];
+                x = (*ddata - min) * tmp;
+                if (x>0.0 & x<bins) {
+                    ret[(int)x] += 1.0;
+                }
+                dataptr[0] += strideptr[0];
             }
-        }
-    } else {  //weights is given
-        weights = PyArray_DATA(pyweights);
-        for (n=0; n < size; n++) {
-            x = (array[n] - min) * tmp;
-            //printf("%.3f\n", weights[n]);
-            if (x >= 0.0 & x < bins) {
-                ret[(int)x] += weights[n];
+        } while (iternext(iter));
+    } else {  //weights are given
+        NpyIter* witer = NpyIter_New(pyweights,
+                NPY_ITER_READONLY | NPY_ITER_EXTERNAL_LOOP | NPY_ITER_REFS_OK,
+                NPY_KEEPORDER, NPY_NO_CASTING, PyArray_DescrFromType(NPY_DOUBLE));
+        NpyIter_IterNextFunc* witernext = NpyIter_GetIterNext(witer, NULL);
+        char** wdataptr = (char **) NpyIter_GetDataPtrArray(witer);
+        npy_intp* wstrideptr = NpyIter_GetInnerStrideArray(witer);
+        //npy_intp* winnersizeptr = NpyIter_GetInnerLoopSizePtr(witer);
+        do {  //external loop
+            npy_intp size = *innersizeptr;
+            while (size--) {  //internal loop
+                double *ddata = (double*) dataptr[0];
+                double *wddata = (double*) wdataptr[0];
+                x = (*ddata - min) * tmp;
+                if (x>0.0 & x<bins) {
+                    ret[(int)x] += *wddata;
+                }
+                dataptr[0] += strideptr[0];
+                wdataptr[0] += wstrideptr[0];
             }
-        }
+        } while (iternext(iter));
     }
 
     return PyArray_Return(pyret);
