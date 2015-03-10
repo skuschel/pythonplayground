@@ -27,14 +27,11 @@ def hist1d(np.ndarray[DTYPE_t, ndim=1] data, double min, double max, int bins=20
     cdef int n = len(data)
     cdef double tmp = 1.0 / (max - min) * bins
     cdef double x
-    if weights is None:
-        for i in xrange(n):
-            x = (data[i] - min) * tmp;
-            if x > 0.0 and x < bins:
-                ret[ <unsigned int>x] += 1.0
-    else:
-        for i in xrange(n):
-            x = (data[i] - min) * tmp;
-            if x > 0.0 and x < bins:
-                ret[ <unsigned int>x] += weights[i]
+    for i in xrange(n):
+        x = (data[i] - min) * tmp;
+        if x > 0.0 and x < bins:
+            if weights is None:
+                ret[<unsigned int>x] += 1.0
+            else:
+                ret[<unsigned int>x] += weights[i]
     return ret
