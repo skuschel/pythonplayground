@@ -30,5 +30,5 @@ def hist1d(np.ndarray[DTYPE_t, ndim=1] data, double min, double max, int bins=20
     for i in xrange(n):
         x = (data[i] - min) * tmp;
         if x > 0.0 and x < bins:
-            ret[np.floor(x)] += 1.0
+            ret[ <unsigned int>x] += 1.0
     return ret
