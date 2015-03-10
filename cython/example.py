@@ -61,6 +61,16 @@ print 'Faktor {:5.1f} schneller!'.format(tn/tc)
 
 
 
+print
+print '--- Histogram 1D -- Top Hat shape'
+#hist = em.hist1d(data, 0.1, 0.9, 50, order=1)
+print hist
+n = 10
+t = timeit.Timer(lambda: em.hist1d(data, 0.001, 0.999, bins, weights, order=1))
+tc = t.timeit(number=n)/n
+print 'c: {:0.4e}'.format(tc)
+print 'Histogrammsumme: {:3.3e}'.format(hist.sum())
+print 'Faktor {:5.1f} schneller!'.format(tn/tc)
 
 
 
