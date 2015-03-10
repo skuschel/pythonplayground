@@ -12,7 +12,7 @@ cimport numpy as np
 
 ctypedef np.double_t DTYPE_t
 
-def sumarray(np.ndarray data):
+def sumarray(np.ndarray[DTYPE_t, ndim=1] data):
     cdef DTYPE_t ret = 0.0
     cdef int n = len(data)
 
