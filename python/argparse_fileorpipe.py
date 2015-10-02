@@ -17,7 +17,7 @@ def main():
 
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('infile', type=argparse.FileType('r'))
+    parser.add_argument('infile', type=argparse.FileType('r'), default=sys.stdin, nargs='?')
     args = parser.parse_args()
 
     print args
