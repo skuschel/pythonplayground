@@ -11,17 +11,20 @@ import tornado.web
 import tornado.ioloop
 import numpy as np
 import time
+import subprocess
+
 
 class MainPageHandler(tornado.web.RequestHandler):
     def get(self):
         self.write('<a href="/hello">hello</a><br>')
         self.write('<a href="/prim/65535">Primfaktorenzerlegung</a><br>')
-
+        self.write('<a href="/uptime">show uptime</a><br>')
 
 
 class HalloWeltHandler(tornado.web.RequestHandler):
     def get(self):
         self.write('Hallo Welt')
+
 
 class PrimfaktorHandler(tornado.web.RequestHandler):
 
@@ -44,11 +47,18 @@ Die Zahl {:} hat folgende Primfaktoren: <br>
         self.write('calculation took {:3.2f} ms'.format((time.time() - t0)*1000))
 
 
+class UptimeHandler(tornado.web.RequestHandler):
+    def get(self):
+        out = subprocess.check_output('uptime')
+        self.write(out)
+
+
 # Let tornado know which handlers to use when
 handlers = [
             ('/', MainPageHandler),
             ('/hello', HalloWeltHandler),
             ('/prim/([0-9]+)', PrimfaktorHandler),
+            ('/uptime', UptimeHandler),
            ]
 
 app = tornado.web.Application(handlers)
