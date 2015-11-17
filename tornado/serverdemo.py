@@ -10,6 +10,7 @@ localhost:8000
 import tornado.web
 import tornado.ioloop
 import numpy as np
+import time
 
 class MainPageHandler(tornado.web.RequestHandler):
     def get(self):
@@ -38,7 +39,9 @@ class PrimfaktorHandler(tornado.web.RequestHandler):
 Die Zahl {:} hat folgende Primfaktoren: <br>
         '''
         self.write(template.format(zahl))
+        t0 = time.time()
         self.writeprimfaktoren(int(zahl))
+        self.write('calculation took {:3.2f} ms'.format((time.time() - t0)*1000))
 
 
 # Let tornado know which handlers to use when
