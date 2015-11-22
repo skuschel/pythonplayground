@@ -20,6 +20,7 @@ class MainPageHandler(tornado.web.RequestHandler):
         self.write('<a href="/hello">hello</a><br>')
         self.write('<a href="/prim/65535">Primfaktorenzerlegung</a><br>')
         self.write('<a href="/uptime">show uptime</a><br>')
+        self.write('<a href="/static/index.html">display static file</a><br>')
 
 GLOBALS = {'hellosockets' :[]}
 
@@ -100,6 +101,6 @@ handlers = [
             ('/uptime', UptimeHandler),
            ]
 
-app = tornado.web.Application(handlers)
+app = tornado.web.Application(handlers, static_path='./static/')
 app.listen(8000)
 tornado.ioloop.IOLoop.instance().start()
