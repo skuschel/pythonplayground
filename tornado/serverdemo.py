@@ -99,8 +99,9 @@ handlers = [
             ('/hellopush', HelloPushHandler),
             ('/prim/([0-9]+)', PrimfaktorHandler),
             ('/uptime', UptimeHandler),
+            ('/static/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
            ]
 
-app = tornado.web.Application(handlers, static_path='./static/')
+app = tornado.web.Application(handlers)
 app.listen(8000)
 tornado.ioloop.IOLoop.instance().start()
