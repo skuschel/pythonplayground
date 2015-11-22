@@ -52,7 +52,7 @@ $(document).ready(function () {
     ws.onmessage = function(event) {
        $('body').append('<div>' + event.data + '</div>');
     }
-    $('body').append('<div> goto localhost:8000/hellopost?data=msg to post msg on this page.</div>');
+    $('body').append('<div> goto localhost:8000/hellopush?data=msg to post msg on this page.</div>');
 });
 </script>
 </head>
