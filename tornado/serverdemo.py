@@ -13,6 +13,7 @@ from tornado import websocket
 import numpy as np
 import time
 import subprocess
+import os
 
 
 class MainPageHandler(tornado.web.RequestHandler):
@@ -66,23 +67,20 @@ Hallo Welt!
 
 class PrimfaktorHandler(tornado.web.RequestHandler):
 
-    def writeprimfaktoren(self, zahl):
+    def primfaktoren(self, zahl):
         for i in range(2, int(np.sqrt(zahl))+1):
             if zahl % i == 0:
-                self.write(' {:}<br>'.format(i))
-                self.writeprimfaktoren(zahl//i)
+                yield i
+                yield from self.primfaktoren(zahl//i)
                 return
         # if code continues here, zahl is a prime
-        self.write(' {:}<br>'.format(zahl))
+        yield zahl
 
     def get(self, zahl):
-        template = '''
-Die Zahl {:} hat folgende Primfaktoren: <br>
-        '''
-        self.write(template.format(zahl))
         t0 = time.time()
-        self.writeprimfaktoren(int(zahl))
-        self.write('calculation took {:3.2f} ms'.format((time.time() - t0)*1000))
+        primfaktoren = list(self.primfaktoren(int(zahl)))
+        self.render('primfaktoren.html', zahl=zahl, primfaktoren=primfaktoren,
+                    zeit=(time.time() - t0))
 
 
 class UptimeHandler(tornado.web.RequestHandler):
@@ -102,6 +100,12 @@ handlers = [
             ('/static/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
            ]
 
-app = tornado.web.Application(handlers)
-app.listen(8000)
-tornado.ioloop.IOLoop.instance().start()
+def main():
+    app = tornado.web.Application(handlers,
+                                  template_path=os.path.join(os.path.dirname(__file__), "templates"))
+    app.listen(8000)
+    tornado.ioloop.IOLoop.instance().start()
+
+if __name__=='__main__':
+    main()
+

@@ -1,0 +1,8 @@
+<html>
+Die Zahl {{ zahl }} hat folgende Primfaktoren:</br>
+{% for prim in primfaktoren %}
+    {{ prim }} </br>
+{% end %}
+
+Berechnung dauerte {{ '{:.3f}'.format(zeit*1000) }} ms.
+</html>
