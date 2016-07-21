@@ -49,7 +49,6 @@ static PyObject* sumarrayiterator(PyObject* self, PyObject* args)
 {
     PyArrayObject *pyarray;
     double ret, **dataptr;
-    int i, n;
     NpyIter *iter;
     NpyIter_IterNextFunc *iternext;
 
@@ -83,7 +82,6 @@ static PyObject* sumarrayitextloop(PyObject* self, PyObject* args)
     PyArrayObject *pyarray;
     double ret;
     char **dataptr;
-    int i, n;
     NpyIter *iter;
     NpyIter_IterNextFunc *iternext;
     npy_intp *strideptr, *innersizeptr;
@@ -143,8 +141,8 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
     weights is optional
     */
     PyArrayObject *pyarray, *pyret, *pyweights;
-    double min, max, x, *array, *ret, *weights;
-    int i, n, bins;
+    double min, max, x, *ret;
+    int bins;
 
     // default for pyweights
     pyweights = NULL;
@@ -184,7 +182,7 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
             while (size--) {  //internal loop
                 double *ddata = (double*) dataptr[0];
                 x = (*ddata - min) * tmp;
-                if (x>0.0 & x<bins) {
+                if ((x>0.0) & (x<bins)) {
                     ret[(int)x] += 1.0;
                 }
                 dataptr[0] += strideptr[0];
@@ -204,7 +202,7 @@ static PyObject* hist1d(PyObject* self, PyObject* args)
                 double *ddata = (double*) dataptr[0];
                 double *wddata = (double*) wdataptr[0];
                 x = (*ddata - min) * tmp;
-                if (x>0.0 & x<bins) {
+                if ((x>0.0) & (x<bins)) {
                     ret[(int)x] += *wddata;
                 }
                 dataptr[0] += strideptr[0];
@@ -224,7 +222,7 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
     */
     PyArrayObject *pyarray, *pyret, *pyweights;
     double min, max, x, *array, *ret, tmp, *weights;
-    int i, n, bins, xr, size;
+    int n, bins, xr, size;
     int outdims[2];
 
     // default if optional arguemnt not supplied
@@ -251,7 +249,7 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
         for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             xr = floor(x + 0.5);
-            if (xr >= 0.0 & xr < bins) {
+            if ((xr >= 0.0) & (xr < bins)) {
                 ret[(int)xr] += 0.5 + x - xr;
                 if (xr > 1.0){
                     ret[(int)(xr) - 1] += 0.5 - x + xr;
@@ -264,7 +262,7 @@ static PyObject* hist1dtophat(PyObject* self, PyObject* args)
         for (n=0; n < size; n++) {
             x = (array[n] - min) * tmp;
             xr = floor(x + 0.5);
-            if (xr >= 0.0 & xr < bins) {
+            if ((xr >= 0.0) & (xr < bins)) {
                 ret[(int)xr] += (0.5 + x - xr) * weights[n];
                 if (xr > 1.0){
                     ret[(int)(xr) - 1] += (0.5 - x + xr) * weights[n];
