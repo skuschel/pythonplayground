@@ -289,9 +289,29 @@ static PyMethodDef examplemodule_methods[] = {
 };
 
 
-
+#if PY_MAJOR_VERSION < 3
+// python2 init
 void initexamplemodule()
 {
     (void) Py_InitModule("examplemodule", examplemodule_methods);
     import_array();  //necessary for numpy
 }
+#else
+// python3 init
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "Examplemodule",
+    "Examplemodule docstring",
+    -1,
+    examplemodule_methods,
+    NULL, NULL, NULL, NULL
+};
+
+PyMODINIT_FUNC PyInit_examplemodule(void)
+{
+    Py_Initialize();
+    import_array();
+    return PyModule_Create(&moduledef);
+}
+#endif
+
