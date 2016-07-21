@@ -12,7 +12,7 @@ print(examplemodule.sum(3,8))
 
 import numpy as np
 #data = np.arange(2e6)
-data = np.random.rand(2e6)
+data = np.random.rand(int(2e6))
 datav = data[::2]
 print('numpy summe [::4]:    {:.17e}'.format(datav.sum()))
 print('C for loop:           {:.17e}'.format(examplemodule.sumarray(datav)))
@@ -40,7 +40,7 @@ print( 'Faktor {:5.2f} schneller!'.format(tn/tc))
 
 print()
 bins = 1000000
-npart = 5e6
+npart = int(5e6)
 print('=== Histogramme  bins: {:6d}, npart: {:.1e}'.format(bins, npart))
 data = np.random.random(npart)
 weights = np.random.random(npart)
